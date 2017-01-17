@@ -1,0 +1,1938 @@
+
+Starting program: /home/os2016/2016osteam12/NachOS-4.0_MP2/code/build.linux/nachos -e ../test/consoleIO_test1 -e ../test/consoleIO_test2
+
+Breakpoint 1, main (argc=5, argv=0xffffd624) at ../threads/main.cc:288
+288			kernel->ExecAll();
+Missing separate debuginfos, use: debuginfo-install glibc-2.12-1.166.el6_7.1.i686 libgcc-4.4.7-16.el6.i686 libstdc++-4.4.7-16.el6.i686
+283	    }
+284	#endif // FILESYS_STUB
+285	
+286	    // finally, run an initial user program if requested to do so
+287	
+288			kernel->ExecAll();
+289	    // If we don't run a user program, we may get here.
+290	    // Calling "return" would terminate the program.
+291	    // Instead, call Halt, which will first clean up, then
+292	    //  terminate.
+Kernel::ExecAll (this=0x8066018) at ../threads/kernel.cc:273
+273		for (int i=1;i<=execfileNum;i++) {
+274			int a = Exec(execfile[i]);
+Kernel::Exec (this=0x8066018, name=0xffffd7c2 "../test/consoleIO_test1") at ../threads/kernel.cc:283
+283		t[threadNum] = new Thread(name, threadNum);
+284		t[threadNum]->space = new AddrSpace();
+AddrSpace::AddrSpace (this=0x80731c0) at ../userprog/addrspace.cc:72
+72	    pageTable = new TranslationEntry[NumPhysPages];
+$1 = 128
+73	    for (int i = 0; i < NumPhysPages; i++) {
+74		pageTable[i].virtualPage = i;	// for now, virt page # = phys page #
+75		pageTable[i].physicalPage = i;
+76		pageTable[i].valid = TRUE;
+77		pageTable[i].use = FALSE;
+78		pageTable[i].dirty = FALSE;
+79		pageTable[i].readOnly = FALSE;  
+73	    for (int i = 0; i < NumPhysPages; i++) {
+83	    bzero(kernel->machine->mainMemory, MemorySize);
+84	}
+Kernel::Exec (this=0x8066018, name=0xffffd7c2 "../test/consoleIO_test1") at ../threads/kernel.cc:285
+285		t[threadNum]->Fork((VoidFunctionPtr) &ForkExecute, (void *)t[threadNum]);
+#0  Kernel::Exec (this=0x8066018, name=0xffffd7c2 "../test/consoleIO_test1") at ../threads/kernel.cc:285
+#1  0x08054e4b in Kernel::ExecAll (this=0x8066018) at ../threads/kernel.cc:274
+#2  0x08055c48 in main (argc=5, argv=0xffffd624) at ../threads/main.cc:288
+Thread::Fork (this=0x8072fd8, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x8072fd8) at ../threads/thread.cc:94
+94	    Interrupt *interrupt = kernel->interrupt;
+95	    Scheduler *scheduler = kernel->scheduler;
+98	    DEBUG(dbgThread, "Forking thread: " << name << " f(a): " << (int) func << " " << arg);
+Debug::IsEnabled (this=0x8066008, flag=116 't') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Thread::Fork (this=0x8072fd8, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x8072fd8) at ../threads/thread.cc:99
+99	    StackAllocate(func, arg);
+Thread::StackAllocate (this=0x8072fd8, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x8072fd8) at ../threads/thread.cc:308
+308	    stack = (int *) AllocBoundedArray(StackSize * sizeof(int));
+AllocBoundedArray (size=32768) at ../lib/sysdep.cc:213
+213	    return new char[size];
+222	}
+Thread::StackAllocate (this=0x8072fd8, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x8072fd8) at ../threads/thread.cc:344
+344	    stackTop = stack + StackSize - 4;	// -4 to be on the safe side!
+345	    *(--stackTop) = (int) ThreadRoot;
+346	    *stack = STACK_FENCEPOST;
+356	    machineState[PCState] = (void*)ThreadRoot;
+357	    machineState[StartupPCState] = (void*)ThreadBegin;
+358	    machineState[InitialPCState] = (void*)func;
+359	    machineState[InitialArgState] = (void*)arg;
+360	    machineState[WhenDonePCState] = (void*)ThreadFinish;
+362	}
+Thread::Fork (this=0x8072fd8, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x8072fd8) at ../threads/thread.cc:101
+101	    oldLevel = interrupt->SetLevel(IntOff);
+#0  Thread::Fork (this=0x8072fd8, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x8072fd8) at ../threads/thread.cc:101
+#1  0x08054f60 in Kernel::Exec (this=0x8066018, name=0xffffd7c2 "../test/consoleIO_test1") at ../threads/kernel.cc:285
+#2  0x08054e4b in Kernel::ExecAll (this=0x8066018) at ../threads/kernel.cc:274
+#3  0x08055c48 in main (argc=5, argv=0xffffd624) at ../threads/main.cc:288
+Interrupt::SetLevel (this=0x80662d8, now=IntOff) at ../machine/interrupt.cc:126
+126	    IntStatus old = level;
+129	    ASSERT((now == IntOff) || (inHandler == FALSE));
+131	    ChangeLevel(old, now);			// change to new state
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:110
+110	}
+Interrupt::SetLevel (this=0x80662d8, now=IntOff) at ../machine/interrupt.cc:132
+132	    if ((now == IntOn) && (old == IntOff)) {
+135	    return old;
+136	}
+Thread::Fork (this=0x8072fd8, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x8072fd8) at ../threads/thread.cc:102
+102	    scheduler->ReadyToRun(this);	// ReadyToRun assumes that interrupts 
+Scheduler::ReadyToRun (this=0x8066308, thread=0x8072fd8) at ../threads/scheduler.cc:59
+59	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Scheduler::ReadyToRun (this=0x8066308, thread=0x8072fd8) at ../threads/scheduler.cc:60
+60	    DEBUG(dbgThread, "Putting thread on ready list: " << thread->getName());
+$2 = 0xffffd7c2 "../test/consoleIO_test1"
+Debug::IsEnabled (this=0x8066008, flag=116 't') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Scheduler::ReadyToRun (this=0x8066308, thread=0x8072fd8) at ../threads/scheduler.cc:62
+62	    thread->setStatus(READY);
+Thread::setStatus (this=0x8072fd8, st=READY) at ../threads/thread.h:102
+102	    void setStatus(ThreadStatus st) { status = st; }
+Scheduler::ReadyToRun (this=0x8066308, thread=0x8072fd8) at ../threads/scheduler.cc:63
+63	    readyList->Append(thread);
+List<Thread*>::Append (this=0x8066318, item=0x8072fd8) at ../lib/list.cc:77
+77	    ListElement<T> *element = new ListElement<T>(item);
+ListElement<Thread*>::ListElement (this=0x807b7e0, itm=0x8072fd8) at ../lib/list.cc:31
+31	     item = itm;
+32	     next = NULL;	// always initialize to something!
+27	
+28	template <class T>
+29	ListElement<T>::ListElement(T itm)
+30	{
+31	     item = itm;
+32	     next = NULL;	// always initialize to something!
+33	}
+34	
+35	
+36	//----------------------------------------------------------------------
+33	}
+List<Thread*>::Append (this=0x8066318, item=0x8072fd8) at ../lib/list.cc:79
+79	    ASSERT(!IsInList(item));
+80	    if (IsEmpty()) {		// list is empty
+84		last->next = element;
+85		last = element;
+87	    numInList++;
+88	    ASSERT(IsInList(item));
+89	}
+Scheduler::ReadyToRun (this=0x8066308, thread=0x8072fd8) at ../threads/scheduler.cc:64
+64	}
+Thread::Fork (this=0x8072fd8, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x8072fd8) at ../threads/thread.cc:104
+104	    (void) interrupt->SetLevel(oldLevel);
+Interrupt::SetLevel (this=0x80662d8, now=IntOn) at ../machine/interrupt.cc:126
+126	    IntStatus old = level;
+129	    ASSERT((now == IntOff) || (inHandler == FALSE));
+131	    ChangeLevel(old, now);			// change to new state
+132	    if ((now == IntOn) && (old == IntOff)) {
+133		OneTick();				// advance simulated time
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:150
+150	    MachineStatus oldStatus = status;
+151	    Statistics *stats = kernel->stats;
+154	    if (status == SystemMode) {
+155	        stats->totalTicks += SystemTick;
+156		stats->systemTicks += SystemTick;
+161	    DEBUG(dbgInt, "== Tick " << stats->totalTicks << " ==");
+164	    ChangeLevel(IntOn, IntOff);	// first, turn off interrupts
+167	    CheckIfDue(FALSE);		// check for pending interrupts
+168	    ChangeLevel(IntOff, IntOn);	// re-enable interrupts
+169	    if (yieldOnReturn) {	// if the timer device handler asked 
+176	}
+Interrupt::SetLevel (this=0x80662d8, now=IntOn) at ../machine/interrupt.cc:135
+135	    return old;
+136	}
+Thread::Fork (this=0x8072fd8, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x8072fd8) at ../threads/thread.cc:105
+105	}    
+Kernel::Exec (this=0x8066018, name=0xffffd7c2 "../test/consoleIO_test1") at ../threads/kernel.cc:286
+286		threadNum++;
+$3 = 1
+288		return threadNum-1;
+314	}
+Kernel::ExecAll (this=0x8066018) at ../threads/kernel.cc:273
+273		for (int i=1;i<=execfileNum;i++) {
+274			int a = Exec(execfile[i]);
+$4 = {0x0, 0xffffd7c2 "../test/consoleIO_test1", 0xffffd7dd "../test/consoleIO_test2", 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
+Kernel::Exec (this=0x8066018, name=0xffffd7dd "../test/consoleIO_test2") at ../threads/kernel.cc:283
+283		t[threadNum] = new Thread(name, threadNum);
+Thread::Thread (this=0x807b7f0, threadName=0xffffd7dd "../test/consoleIO_test2", threadID=2) at ../threads/thread.cc:38
+38		ID = threadID;
+$5 = 0
+$6 = 2
+39	    name = threadName;
+$7 = 0xffffd7dd "../test/consoleIO_test2"
+40	    stackTop = NULL;
+41	    stack = NULL;
+42	    status = JUST_CREATED;
+43	    for (int i = 0; i < MachineStateSize; i++) {
+44		machineState[i] = NULL;		// not strictly necessary, since
+43	    for (int i = 0; i < MachineStateSize; i++) {
+48	    space = NULL;
+49	}
+Kernel::Exec (this=0x8066018, name=0xffffd7dd "../test/consoleIO_test2") at ../threads/kernel.cc:284
+284		t[threadNum]->space = new AddrSpace();
+AddrSpace::AddrSpace (this=0x807b9d8) at ../userprog/addrspace.cc:72
+72	    pageTable = new TranslationEntry[NumPhysPages];
+73	    for (int i = 0; i < NumPhysPages; i++) {
+74		pageTable[i].virtualPage = i;	// for now, virt page # = phys page #
+75		pageTable[i].physicalPage = i;
+76		pageTable[i].valid = TRUE;
+77		pageTable[i].use = FALSE;
+78		pageTable[i].dirty = FALSE;
+79		pageTable[i].readOnly = FALSE;  
+73	    for (int i = 0; i < NumPhysPages; i++) {
+83	    bzero(kernel->machine->mainMemory, MemorySize);
+84	}
+Kernel::Exec (this=0x8066018, name=0xffffd7dd "../test/consoleIO_test2") at ../threads/kernel.cc:285
+285		t[threadNum]->Fork((VoidFunctionPtr) &ForkExecute, (void *)t[threadNum]);
+Thread::Fork (this=0x807b7f0, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x807b7f0) at ../threads/thread.cc:94
+94	    Interrupt *interrupt = kernel->interrupt;
+95	    Scheduler *scheduler = kernel->scheduler;
+98	    DEBUG(dbgThread, "Forking thread: " << name << " f(a): " << (int) func << " " << arg);
+99	    StackAllocate(func, arg);
+Thread::StackAllocate (this=0x807b7f0, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x807b7f0) at ../threads/thread.cc:308
+308	    stack = (int *) AllocBoundedArray(StackSize * sizeof(int));
+$8 = 8192
+AllocBoundedArray (size=32768) at ../lib/sysdep.cc:213
+213	    return new char[size];
+222	}
+Thread::StackAllocate (this=0x807b7f0, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x807b7f0) at ../threads/thread.cc:344
+344	    stackTop = stack + StackSize - 4;	// -4 to be on the safe side!
+$9 = (int *) 0x807bff0
+345	    *(--stackTop) = (int) ThreadRoot;
+346	    *stack = STACK_FENCEPOST;
+356	    machineState[PCState] = (void*)ThreadRoot;
+357	    machineState[StartupPCState] = (void*)ThreadBegin;
+358	    machineState[InitialPCState] = (void*)func;
+359	    machineState[InitialArgState] = (void*)arg;
+360	    machineState[WhenDonePCState] = (void*)ThreadFinish;
+362	}
+Thread::Fork (this=0x807b7f0, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x807b7f0) at ../threads/thread.cc:101
+101	    oldLevel = interrupt->SetLevel(IntOff);
+$10 = IntOff
+Interrupt::SetLevel (this=0x80662d8, now=IntOff) at ../machine/interrupt.cc:126
+126	    IntStatus old = level;
+129	    ASSERT((now == IntOff) || (inHandler == FALSE));
+131	    ChangeLevel(old, now);			// change to new state
+132	    if ((now == IntOn) && (old == IntOff)) {
+135	    return old;
+136	}
+Thread::Fork (this=0x807b7f0, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x807b7f0) at ../threads/thread.cc:102
+102	    scheduler->ReadyToRun(this);	// ReadyToRun assumes that interrupts 
+Scheduler::ReadyToRun (this=0x8066308, thread=0x807b7f0) at ../threads/scheduler.cc:59
+59	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+60	    DEBUG(dbgThread, "Putting thread on ready list: " << thread->getName());
+62	    thread->setStatus(READY);
+63	    readyList->Append(thread);
+$11 = (List<Thread*> *) 0x8066318
+64	}
+$12 = (ListElement<Thread*> *) 0x8072f30
+$13 = {bool (List<Thread*> *)} 0x80564f4 <List<Thread*>::IsEmpty()>
+Cannot resolve method List<Thread*>::IsEmpty to any overloaded instance
+$14 = {_vptr.List = 0x805dfe8, first = 0x8072f30, last = 0x8083ff8, numInList = 3}
+$15 = (Thread *) 0x807b7f0
+$16 = {_vptr.List = 0x0, first = 0x19, last = 0x805dae8, numInList = 134636360}
+Thread::Fork (this=0x807b7f0, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x807b7f0) at ../threads/thread.cc:104
+104	    (void) interrupt->SetLevel(oldLevel);
+Interrupt::SetLevel (this=0x80662d8, now=IntOn) at ../machine/interrupt.cc:126
+126	    IntStatus old = level;
+129	    ASSERT((now == IntOff) || (inHandler == FALSE));
+131	    ChangeLevel(old, now);			// change to new state
+132	    if ((now == IntOn) && (old == IntOff)) {
+133		OneTick();				// advance simulated time
+135	    return old;
+136	}
+Thread::Fork (this=0x807b7f0, func=0x8054dcd <ForkExecute(Thread*)>, arg=0x807b7f0) at ../threads/thread.cc:105
+105	}    
+Kernel::Exec (this=0x8066018, name=0xffffd7dd "../test/consoleIO_test2") at ../threads/kernel.cc:286
+286		threadNum++;
+$17 = 2
+288		return threadNum-1;
+314	}
+Kernel::ExecAll (this=0x8066018) at ../threads/kernel.cc:273
+273		for (int i=1;i<=execfileNum;i++) {
+$18 = 2
+276		currentThread->Finish();
+Thread::Finish (this=0x80660c0) at ../threads/thread.cc:173
+173	    (void) kernel->interrupt->SetLevel(IntOff);		
+Interrupt::SetLevel (this=0x80662d8, now=IntOff) at ../machine/interrupt.cc:126
+126	    IntStatus old = level;
+129	    ASSERT((now == IntOff) || (inHandler == FALSE));
+131	    ChangeLevel(old, now);			// change to new state
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+110	}
+$19 = IntOff
+A syntax error in expression, near `new'.
+$20 = IntOff
+$21 = IntOn
+Interrupt::SetLevel (this=0x80662d8, now=IntOff) at ../machine/interrupt.cc:132
+132	    if ((now == IntOn) && (old == IntOff)) {
+135	    return old;
+136	}
+Thread::Finish (this=0x80660c0) at ../threads/thread.cc:174
+174	    ASSERT(this == kernel->currentThread);
+176	    DEBUG(dbgThread, "Finishing thread: " << name);
+177	    Sleep(TRUE);				// invokes SWITCH
+Thread::Sleep (this=0x80660c0, finishing=true) at ../threads/thread.cc:243
+243	    ASSERT(this == kernel->currentThread);
+244	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Thread::Sleep (this=0x80660c0, finishing=true) at ../threads/thread.cc:246
+246	    DEBUG(dbgThread, "Sleeping thread: " << name);
+$22 = 0x805dbfd "main"
+248	    status = BLOCKED;
+250	    while ((nextThread = kernel->scheduler->FindNextToRun()) == NULL) {
+254	    kernel->scheduler->Run(nextThread, finishing); 
+$23 = (Thread *) 0x806ad40
+
+Starting program: /home/os2016/2016osteam12/NachOS-4.0_MP2/code/build.linux/nachos -e ../test/consoleIO_test1 -e ../test/consoleIO_test2
+
+Breakpoint 1, Thread::Sleep (this=0x80660c0, finishing=true) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Missing separate debuginfos, use: debuginfo-install glibc-2.12-1.166.el6_7.1.i686 libgcc-4.4.7-16.el6.i686 libstdc++-4.4.7-16.el6.i686
+Scheduler::Run (this=0x8066308, nextThread=0x806ad40, finishing=true) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+$1 = (Thread *) 0x80660c0
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Scheduler::Run (this=0x8066308, nextThread=0x806ad40, finishing=true) at ../threads/scheduler.cc:110
+110	    if (finishing) {	// mark that we need to delete current thread
+No symbol "level" in current context.
+111	         ASSERT(toBeDestroyed == NULL);
+112		 toBeDestroyed = oldThread;
+$2 = (Thread *) 0x80660c0
+#0  Scheduler::Run (this=0x8066308, nextThread=0x806ad40, finishing=true) at ../threads/scheduler.cc:112
+#1  0x08057fb7 in Thread::Sleep (this=0x80660c0, finishing=true) at ../threads/thread.cc:254
+#2  0x08057cd4 in Thread::Finish (this=0x80660c0) at ../threads/thread.cc:177
+#3  0x08054e72 in Kernel::ExecAll (this=0x8066018) at ../threads/kernel.cc:276
+#4  0x08055c48 in main (argc=5, argv=0xffffd624) at ../threads/main.cc:288
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+120	    oldThread->CheckOverflow();		    // check if the old thread
+Thread::CheckOverflow (this=0x80660c0) at ../threads/thread.cc:125
+125	    if (stack != NULL) {
+132	}
+Scheduler::Run (this=0x8066308, nextThread=0x806ad40, finishing=true) at ../threads/scheduler.cc:123
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+Thread::setStatus (this=0x806ad40, st=RUNNING) at ../threads/thread.h:102
+102	    void setStatus(ThreadStatus st) { status = st; }
+Scheduler::Run (this=0x8066308, nextThread=0x806ad40, finishing=true) at ../threads/scheduler.cc:126
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+Debug::IsEnabled (this=0x8066008, flag=116 't') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Scheduler::Run (this=0x8066308, nextThread=0x806ad40, finishing=true) at ../threads/scheduler.cc:133
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x806ad40, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+#0  Thread::Sleep (this=0x806ad40, finishing=false) at ../threads/thread.cc:254
+#1  0x08056af5 in Semaphore::P (this=0x806a6b0) at ../threads/synch.cc:86
+#2  0x0805b6c5 in PostOfficeInput::PostalDelivery (data=0x806a698) at ../network/post.cc:200
+#3  0x0805c668 in _ThreadRoot ()
+#4  0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#5  0x00000000 in ?? ()
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+$3 = (Thread *) 0x806ad40
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:110
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+120	    oldThread->CheckOverflow();		    // check if the old thread
+Thread::CheckOverflow (this=0x806ad40) at ../threads/thread.cc:125
+125	    if (stack != NULL) {
+129		ASSERT(*stack == STACK_FENCEPOST);
+132	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:123
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+#0  Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:123
+#1  0x08057fb7 in Thread::Sleep (this=0x806ad40, finishing=false) at ../threads/thread.cc:254
+#2  0x08056af5 in Semaphore::P (this=0x806a6b0) at ../threads/synch.cc:86
+#3  0x0805b6c5 in PostOfficeInput::PostalDelivery (data=0x806a698) at ../network/post.cc:200
+#4  0x0805c668 in _ThreadRoot ()
+#5  0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#6  0x00000000 in ?? ()
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+Thread::setStatus (this=0x8072fd8, st=RUNNING) at ../threads/thread.h:102
+102	    void setStatus(ThreadStatus st) { status = st; }
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:126
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+Debug::IsEnabled (this=0x8066008, flag=116 't') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:133
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:110
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+Thread::SaveUserState (this=0x8072fd8) at ../threads/thread.cc:378
+378	    for (int i = 0; i < NumTotalRegs; i++)
+379		userRegisters[i] = kernel->machine->ReadRegister(i);
+378	    for (int i = 0; i < NumTotalRegs; i++)
+380	}
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:117
+117		oldThread->space->SaveState();
+AddrSpace::SaveState (this=0x80731c0) at ../userprog/addrspace.cc:263
+263	{}
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:120
+120	    oldThread->CheckOverflow();		    // check if the old thread
+Thread::CheckOverflow (this=0x8072fd8) at ../threads/thread.cc:125
+125	    if (stack != NULL) {
+129		ASSERT(*stack == STACK_FENCEPOST);
+132	}
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:123
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+No symbol "currentThread" in current context.
+$4 = (Thread *) 0x807b7f0
+#0  Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:124
+#1  0x08057fb7 in Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+#2  0x08056af5 in Semaphore::P (this=0x806a560) at ../threads/synch.cc:86
+#3  0x0805a32b in SynchConsoleOutput::PutInt (this=0x806a4f8, number=9) at ../userprog/synchconsole.cc:118
+#4  0x08054b65 in Kernel::ConsolePrintInt (this=0x8066018, number=9) at ../threads/kernel.cc:200
+#5  0x0804d8ae in Interrupt::PrintInt (this=0x80662d8, number=9) at ../machine/interrupt.cc:251
+#6  0x08059086 in SysPrintInt (number=9) at ../userprog/ksyscall.h:39
+#7  0x08059245 in ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:63
+#8  0x0804f66f in Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:107
+#9  0x08051379 in Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:671
+#10 0x0804fd36 in Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#11 0x08058cec in AddrSpace::Execute (this=0x80731c0, fileName=0xffffd7c2 "../test/consoleIO_test1") at ../userprog/addrspace.cc:210
+#12 0x08054e1a in ForkExecute (t=0x8072fd8) at ../threads/kernel.cc:267
+#13 0x0805c668 in _ThreadRoot ()
+#14 0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#15 0x00000000 in ?? ()
+Thread::setStatus (this=0x807b7f0, st=RUNNING) at ../threads/thread.h:102
+102	    void setStatus(ThreadStatus st) { status = st; }
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:126
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:110
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+Thread::SaveUserState (this=0x807b7f0) at ../threads/thread.cc:378
+378	    for (int i = 0; i < NumTotalRegs; i++)
+379		userRegisters[i] = kernel->machine->ReadRegister(i);
+378	    for (int i = 0; i < NumTotalRegs; i++)
+380	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:117
+117		oldThread->space->SaveState();
+AddrSpace::SaveState (this=0x807b9d8) at ../userprog/addrspace.cc:263
+263	{}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:120
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+Thread::setStatus (this=0x8072fd8, st=RUNNING) at ../threads/thread.h:102
+102	    void setStatus(ThreadStatus st) { status = st; }
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:126
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+138	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:140
+140	    DEBUG(dbgThread, "Now in thread: " << oldThread->getName());
+$5 = 0xffffd7dd "../test/consoleIO_test2"
+Debug::IsEnabled (this=0x8066008, flag=116 't') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:142
+142	    CheckToBeDestroyed();		// check if thread we were running
+Scheduler::CheckToBeDestroyed (this=0x8066308) at ../threads/scheduler.cc:163
+163	    if (toBeDestroyed != NULL) {
+167	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:146
+146	    if (oldThread->space != NULL) {	    // if there is an address space
+147	        oldThread->RestoreUserState();     // to restore, do it.
+Thread::RestoreUserState (this=0x807b7f0) at ../threads/thread.cc:394
+394	    for (int i = 0; i < NumTotalRegs; i++)
+395		kernel->machine->WriteRegister(i, userRegisters[i]);
+394	    for (int i = 0; i < NumTotalRegs; i++)
+396	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:148
+148		oldThread->space->RestoreState();
+AddrSpace::RestoreState (this=0x807b9d8) at ../userprog/addrspace.cc:275
+275	    kernel->machine->pageTable = pageTable;
+276	    kernel->machine->pageTableSize = numPages;
+277	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:150
+150	}
+Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:255
+255	}
+Semaphore::P (this=0x806a538) at ../threads/synch.cc:84
+84	    while (value == 0) { 		// semaphore not available
+#0  Semaphore::P (this=0x806a538) at ../threads/synch.cc:84
+#1  0x08056df4 in Lock::Acquire (this=0x806a528) at ../threads/synch.cc:183
+#2  0x0805a308 in SynchConsoleOutput::PutInt (this=0x806a4f8, number=15) at ../userprog/synchconsole.cc:116
+#3  0x08054b65 in Kernel::ConsolePrintInt (this=0x8066018, number=15) at ../threads/kernel.cc:200
+#4  0x0804d8ae in Interrupt::PrintInt (this=0x80662d8, number=15) at ../machine/interrupt.cc:251
+#5  0x08059086 in SysPrintInt (number=15) at ../userprog/ksyscall.h:39
+#6  0x08059245 in ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:63
+#7  0x0804f66f in Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:107
+#8  0x08051379 in Machine::OneInstruction (this=0x8066380, instr=0x8083ff8) at ../machine/mipssim.cc:671
+#9  0x0804fd36 in Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#10 0x08058cec in AddrSpace::Execute (this=0x807b9d8, fileName=0xffffd7dd "../test/consoleIO_test2") at ../userprog/addrspace.cc:210
+#11 0x08054e1a in ForkExecute (t=0x807b7f0) at ../threads/kernel.cc:267
+#12 0x0805c668 in _ThreadRoot ()
+#13 0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#14 0x00000000 in ?? ()
+88	    value--; 			// semaphore available, consume its value
+91	    (void) interrupt->SetLevel(oldLevel);	
+92	}
+Lock::Acquire (this=0x806a528) at ../threads/synch.cc:184
+184	    lockHolder = kernel->currentThread;
+185	}
+SynchConsoleOutput::PutInt (this=0x806a4f8, number=15) at ../userprog/synchconsole.cc:117
+117	    consoleOutput->PutInt(number);
+118	    waitFor->P();
+
+Breakpoint 1, Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+#0  Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+#1  0x08057fb7 in Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:254
+#2  0x08056af5 in Semaphore::P (this=0x806a560) at ../threads/synch.cc:86
+#3  0x0805a32b in SynchConsoleOutput::PutInt (this=0x806a4f8, number=15) at ../userprog/synchconsole.cc:118
+#4  0x08054b65 in Kernel::ConsolePrintInt (this=0x8066018, number=15) at ../threads/kernel.cc:200
+#5  0x0804d8ae in Interrupt::PrintInt (this=0x80662d8, number=15) at ../machine/interrupt.cc:251
+#6  0x08059086 in SysPrintInt (number=15) at ../userprog/ksyscall.h:39
+#7  0x08059245 in ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:63
+#8  0x0804f66f in Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:107
+#9  0x08051379 in Machine::OneInstruction (this=0x8066380, instr=0x8083ff8) at ../machine/mipssim.cc:671
+#10 0x0804fd36 in Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#11 0x08058cec in AddrSpace::Execute (this=0x807b9d8, fileName=0xffffd7dd "../test/consoleIO_test2") at ../userprog/addrspace.cc:210
+#12 0x08054e1a in ForkExecute (t=0x807b7f0) at ../threads/kernel.cc:267
+#13 0x0805c668 in _ThreadRoot ()
+#14 0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#15 0x00000000 in ?? ()
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:110
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+Thread::SaveUserState (this=0x807b7f0) at ../threads/thread.cc:378
+378	    for (int i = 0; i < NumTotalRegs; i++)
+379		userRegisters[i] = kernel->machine->ReadRegister(i);
+378	    for (int i = 0; i < NumTotalRegs; i++)
+380	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:117
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+$6 = (Thread *) 0x8072fd8
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:110
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+Thread::SaveUserState (this=0x8072fd8) at ../threads/thread.cc:378
+378	    for (int i = 0; i < NumTotalRegs; i++)
+379		userRegisters[i] = kernel->machine->ReadRegister(i);
+378	    for (int i = 0; i < NumTotalRegs; i++)
+380	}
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:117
+117		oldThread->space->SaveState();
+AddrSpace::SaveState (this=0x80731c0) at ../userprog/addrspace.cc:263
+263	{}
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:120
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:110
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+Interrupt::getLevel (this=0x80662d8) at ../machine/interrupt.h:87
+87	    IntStatus getLevel() {return level;}
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:110
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+#0  Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:123
+#1  0x08057fb7 in Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+#2  0x08056af5 in Semaphore::P (this=0x806a538) at ../threads/synch.cc:86
+#3  0x08056df4 in Lock::Acquire (this=0x806a528) at ../threads/synch.cc:183
+#4  0x0805a308 in SynchConsoleOutput::PutInt (this=0x806a4f8, number=8) at ../userprog/synchconsole.cc:116
+#5  0x08054b65 in Kernel::ConsolePrintInt (this=0x8066018, number=8) at ../threads/kernel.cc:200
+#6  0x0804d8ae in Interrupt::PrintInt (this=0x80662d8, number=8) at ../machine/interrupt.cc:251
+#7  0x08059086 in SysPrintInt (number=8) at ../userprog/ksyscall.h:39
+#8  0x08059245 in ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:63
+#9  0x0804f66f in Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:107
+#10 0x08051379 in Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:671
+#11 0x0804fd36 in Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#12 0x08058cec in AddrSpace::Execute (this=0x80731c0, fileName=0xffffd7c2 "../test/consoleIO_test1") at ../userprog/addrspace.cc:210
+#13 0x08054e1a in ForkExecute (t=0x8072fd8) at ../threads/kernel.cc:267
+#14 0x0805c668 in _ThreadRoot ()
+#15 0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#16 0x00000000 in ?? ()
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+#0  Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:133
+#1  0x08057fb7 in Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:254
+#2  0x08056af5 in Semaphore::P (this=0x806a560) at ../threads/synch.cc:86
+#3  0x0805a32b in SynchConsoleOutput::PutInt (this=0x806a4f8, number=17) at ../userprog/synchconsole.cc:118
+#4  0x08054b65 in Kernel::ConsolePrintInt (this=0x8066018, number=17) at ../threads/kernel.cc:200
+#5  0x0804d8ae in Interrupt::PrintInt (this=0x80662d8, number=17) at ../machine/interrupt.cc:251
+#6  0x08059086 in SysPrintInt (number=17) at ../userprog/ksyscall.h:39
+#7  0x08059245 in ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:63
+#8  0x0804f66f in Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:107
+#9  0x08051379 in Machine::OneInstruction (this=0x8066380, instr=0x8083ff8) at ../machine/mipssim.cc:671
+#10 0x0804fd36 in Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#11 0x08058cec in AddrSpace::Execute (this=0x807b9d8, fileName=0xffffd7dd "../test/consoleIO_test2") at ../userprog/addrspace.cc:210
+#12 0x08054e1a in ForkExecute (t=0x807b7f0) at ../threads/kernel.cc:267
+#13 0x0805c668 in _ThreadRoot ()
+#14 0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#15 0x00000000 in ?? ()
+
+Breakpoint 1, Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+#0  Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+#1  0x08056af5 in Semaphore::P (this=0x806a538) at ../threads/synch.cc:86
+#2  0x08056df4 in Lock::Acquire (this=0x806a528) at ../threads/synch.cc:183
+#3  0x0805a308 in SynchConsoleOutput::PutInt (this=0x806a4f8, number=8) at ../userprog/synchconsole.cc:116
+#4  0x08054b65 in Kernel::ConsolePrintInt (this=0x8066018, number=8) at ../threads/kernel.cc:200
+#5  0x0804d8ae in Interrupt::PrintInt (this=0x80662d8, number=8) at ../machine/interrupt.cc:251
+#6  0x08059086 in SysPrintInt (number=8) at ../userprog/ksyscall.h:39
+#7  0x08059245 in ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:63
+#8  0x0804f66f in Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:107
+#9  0x08051379 in Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:671
+#10 0x0804fd36 in Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#11 0x08058cec in AddrSpace::Execute (this=0x80731c0, fileName=0xffffd7c2 "../test/consoleIO_test1") at ../userprog/addrspace.cc:210
+#12 0x08054e1a in ForkExecute (t=0x8072fd8) at ../threads/kernel.cc:267
+#13 0x0805c668 in _ThreadRoot ()
+#14 0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#15 0x00000000 in ?? ()
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+#0  Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:123
+#1  0x08057fb7 in Thread::Sleep (this=0x807b7f0, finishing=false) at ../threads/thread.cc:254
+#2  0x08056af5 in Semaphore::P (this=0x806a560) at ../threads/synch.cc:86
+#3  0x0805a32b in SynchConsoleOutput::PutInt (this=0x806a4f8, number=19) at ../userprog/synchconsole.cc:118
+#4  0x08054b65 in Kernel::ConsolePrintInt (this=0x8066018, number=19) at ../threads/kernel.cc:200
+#5  0x0804d8ae in Interrupt::PrintInt (this=0x80662d8, number=19) at ../machine/interrupt.cc:251
+#6  0x08059086 in SysPrintInt (number=19) at ../userprog/ksyscall.h:39
+#7  0x08059245 in ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:63
+#8  0x0804f66f in Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:107
+#9  0x08051379 in Machine::OneInstruction (this=0x8066380, instr=0x8083ff8) at ../machine/mipssim.cc:671
+#10 0x0804fd36 in Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#11 0x08058cec in AddrSpace::Execute (this=0x807b9d8, fileName=0xffffd7dd "../test/consoleIO_test2") at ../userprog/addrspace.cc:210
+#12 0x08054e1a in ForkExecute (t=0x807b7f0) at ../threads/kernel.cc:267
+#13 0x0805c668 in _ThreadRoot ()
+#14 0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#15 0x00000000 in ?? ()
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x807b7f0, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+$7 = 0xffffd7dd "../test/consoleIO_test2"
+$8 = 0xffffd7c2 "../test/consoleIO_test1"
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x807b7f0, finishing=true) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=true) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+110	    if (finishing) {	// mark that we need to delete current thread
+111	         ASSERT(toBeDestroyed == NULL);
+112		 toBeDestroyed = oldThread;
+$9 = (Thread *) 0x807b7f0
+$10 = 0xffffd7dd "../test/consoleIO_test2"
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+$11 = 0xffffd7dd "../test/consoleIO_test2"
+$12 = 0xffffd7c2 "../test/consoleIO_test1"
+133	    SWITCH(oldThread, nextThread);
+
+Breakpoint 1, Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+$13 = 0xffffd7c2 "../test/consoleIO_test1"
+No symbol "currentThread" in current context.
+$14 = 0xffffd7c2 "../test/consoleIO_test1"
+$15 = 0xffffd7c2 "../test/consoleIO_test1"
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+$16 = 0xffffd7c2 "../test/consoleIO_test1"
+$17 = 0xffffd7c2 "../test/consoleIO_test1"
+133	    SWITCH(oldThread, nextThread);
+138	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+140	    DEBUG(dbgThread, "Now in thread: " << oldThread->getName());
+$18 = 0xffffd7c2 "../test/consoleIO_test1"
+$19 = 0xffffd7c2 "../test/consoleIO_test1"
+142	    CheckToBeDestroyed();		// check if thread we were running
+146	    if (oldThread->space != NULL) {	    // if there is an address space
+147	        oldThread->RestoreUserState();     // to restore, do it.
+Thread::RestoreUserState (this=0x8072fd8) at ../threads/thread.cc:394
+394	    for (int i = 0; i < NumTotalRegs; i++)
+395		kernel->machine->WriteRegister(i, userRegisters[i]);
+394	    for (int i = 0; i < NumTotalRegs; i++)
+396	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:148
+148		oldThread->space->RestoreState();
+AddrSpace::RestoreState (this=0x80731c0) at ../userprog/addrspace.cc:275
+275	    kernel->machine->pageTable = pageTable;
+276	    kernel->machine->pageTableSize = numPages;
+277	}
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:150
+150	}
+#0  Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:150
+#1  0x08057fb7 in Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+#2  0x08056af5 in Semaphore::P (this=0x806a560) at ../threads/synch.cc:86
+#3  0x0805a32b in SynchConsoleOutput::PutInt (this=0x806a4f8, number=8) at ../userprog/synchconsole.cc:118
+#4  0x08054b65 in Kernel::ConsolePrintInt (this=0x8066018, number=8) at ../threads/kernel.cc:200
+#5  0x0804d8ae in Interrupt::PrintInt (this=0x80662d8, number=8) at ../machine/interrupt.cc:251
+#6  0x08059086 in SysPrintInt (number=8) at ../userprog/ksyscall.h:39
+#7  0x08059245 in ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:63
+#8  0x0804f66f in Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:107
+#9  0x08051379 in Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:671
+#10 0x0804fd36 in Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#11 0x08058cec in AddrSpace::Execute (this=0x80731c0, fileName=0xffffd7c2 "../test/consoleIO_test1") at ../userprog/addrspace.cc:210
+#12 0x08054e1a in ForkExecute (t=0x8072fd8) at ../threads/kernel.cc:267
+#13 0x0805c668 in _ThreadRoot ()
+#14 0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#15 0x00000000 in ?? ()
+Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:255
+255	}
+Semaphore::P (this=0x806a560) at ../threads/synch.cc:84
+84	    while (value == 0) { 		// semaphore not available
+88	    value--; 			// semaphore available, consume its value
+91	    (void) interrupt->SetLevel(oldLevel);	
+92	}
+SynchConsoleOutput::PutInt (this=0x806a4f8, number=8) at ../userprog/synchconsole.cc:119
+119	    lock->Release();
+120	}
+Kernel::ConsolePrintInt (this=0x8066018, number=8) at ../threads/kernel.cc:201
+201	}
+Interrupt::PrintInt (this=0x80662d8, number=8) at ../machine/interrupt.cc:252
+252	}
+SysPrintInt (number=8) at ../userprog/ksyscall.h:40
+40	}
+ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:64
+64				kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));
+65				kernel->machine->WriteRegister(PCReg, kernel->machine->ReadRegister(PCReg) + 4);
+66				kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg)+4);
+67				return;		
+196	}
+Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:108
+108	    kernel->interrupt->setStatus(UserMode);
+109	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:672
+672		return; 
+701	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:68
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:150
+150	    MachineStatus oldStatus = status;
+151	    Statistics *stats = kernel->stats;
+154	    if (status == SystemMode) {
+158		stats->totalTicks += UserTick;
+159		stats->userTicks += UserTick;
+161	    DEBUG(dbgInt, "== Tick " << stats->totalTicks << " ==");
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:164
+164	    ChangeLevel(IntOn, IntOff);	// first, turn off interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:167
+167	    CheckIfDue(FALSE);		// check for pending interrupts
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:321
+321	    Statistics *stats = kernel->stats;
+323	    ASSERT(level == IntOff);		// interrupts need to be disabled,
+325	    if (debug->IsEnabled(dbgInt)) {
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:328
+328	    if (pending->IsEmpty()) {   	// no pending interrupts
+List<PendingInterrupt*>::IsEmpty (this=0x80662f0) at ../lib/list.h:62
+62	    bool IsEmpty() { return (numInList == 0); };
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:331
+331	    next = pending->Front();
+List<PendingInterrupt*>::Front (this=0x80662f0) at ../lib/list.h:52
+52	    T Front() { return first->item; }
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:333
+333	    if (next->when > stats->totalTicks) {
+334	        if (!advanceClock) {		// not time yet
+335	            return FALSE;
+360	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:168
+168	    ChangeLevel(IntOff, IntOn);	// re-enable interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:169
+169	    if (yieldOnReturn) {	// if the timer device handler asked 
+176	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:69
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:128
+128	    int nextLoadReg = 0; 	
+129	    int nextLoadValue = 0; 	// record delayed load operation, to apply
+133	    if (!ReadMem(registers[PCReg], 4, &raw))
+Machine::ReadMem (this=0x8066380, addr=420, size=4, value=0x807b710) at ../machine/translate.cc:92
+92	    DEBUG(dbgAddr, "Reading VA " << addr << ", size " << size);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=420, size=4, value=0x807b710) at ../machine/translate.cc:94
+94	    exception = Translate(addr, &physicalAddress, size, FALSE);
+Machine::Translate (this=0x8066380, virtAddr=420, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:192
+192	    DEBUG(dbgAddr, "\tTranslate " << virtAddr << (writing ? " , write" : " , read"));
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=420, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:195
+195	    if (((size == 4) && (virtAddr & 0x3)) || ((size == 2) && (virtAddr & 0x1))){
+200	    ASSERT(tlb == NULL || pageTable == NULL);	
+201	    ASSERT(tlb != NULL || pageTable != NULL);	
+205	    vpn = (unsigned) virtAddr / PageSize;
+206	    offset = (unsigned) virtAddr % PageSize;
+208	    if (tlb == NULL) {		// => page table => vpn is index into table
+209		if (vpn >= pageTableSize) {
+212		} else if (!pageTable[vpn].valid) {
+216		entry = &pageTable[vpn];
+231	    if (entry->readOnly && writing) {	// trying to write to a read-only page
+235	    pageFrame = entry->physicalPage;
+239	    if (pageFrame >= NumPhysPages) { 
+243	    entry->use = TRUE;		// set the use, dirty bits
+244	    if (writing)
+246	    *physAddr = pageFrame * PageSize + offset;
+247	    ASSERT((*physAddr >= 0) && ((*physAddr + size) <= MemorySize));
+248	    DEBUG(dbgAddr, "phys addr = " << *physAddr);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=420, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:249
+249	    return NoException;
+250	}
+Machine::ReadMem (this=0x8066380, addr=420, size=4, value=0x807b710) at ../machine/translate.cc:95
+95	    if (exception != NoException) {
+99	    switch (size) {
+111		data = *(unsigned int *) &mainMemory[physicalAddress];
+112		*value = WordToHost(data);
+WordToHost (word=2411855888) at ../machine/translate.cc:49
+49		 return word;
+51	}
+Machine::ReadMem (this=0x8066380, addr=420, size=4, value=0x807b710) at ../machine/translate.cc:113
+113		break;
+118	    DEBUG(dbgAddr, "\tvalue read = " << *value);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=420, size=4, value=0x807b710) at ../machine/translate.cc:119
+119	    return (TRUE);
+120	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:135
+135	    instr->value = raw;
+136	    instr->Decode();
+Instruction::Decode (this=0x807b7e0) at ../machine/mipssim.cc:730
+730	    rs = (value >> 21) & 0x1f;
+731	    rt = (value >> 16) & 0x1f;
+732	    rd = (value >> 11) & 0x1f;
+733	    opPtr = &opTable[(value >> 26) & 0x3f];
+734	    opCode = opPtr->opCode;
+735	    if (opPtr->format == IFMT) {
+736		extra = value & 0xffff;
+737		if (extra & 0x8000) {
+745	    if (opCode == SPECIAL) {
+747	    } else if (opCode == BCOND) {
+762	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:138
+138	    if (debug->IsEnabled('m')) {
+Debug::IsEnabled (this=0x8066008, flag=109 'm') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:150
+150	    int pcAfter = registers[NextPCReg] + 4;
+155	    switch (instr->opCode) {
+301		tmp = registers[instr->rs] + instr->extra;
+302		if (tmp & 0x3) {
+306		if (!ReadMem(tmp, 4, &value))
+Machine::ReadMem (this=0x8066380, addr=1504, size=4, value=0x807b70c) at ../machine/translate.cc:92
+92	    DEBUG(dbgAddr, "Reading VA " << addr << ", size " << size);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=1504, size=4, value=0x807b70c) at ../machine/translate.cc:94
+94	    exception = Translate(addr, &physicalAddress, size, FALSE);
+Machine::Translate (this=0x8066380, virtAddr=1504, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:192
+192	    DEBUG(dbgAddr, "\tTranslate " << virtAddr << (writing ? " , write" : " , read"));
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=1504, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:195
+195	    if (((size == 4) && (virtAddr & 0x3)) || ((size == 2) && (virtAddr & 0x1))){
+200	    ASSERT(tlb == NULL || pageTable == NULL);	
+201	    ASSERT(tlb != NULL || pageTable != NULL);	
+205	    vpn = (unsigned) virtAddr / PageSize;
+206	    offset = (unsigned) virtAddr % PageSize;
+208	    if (tlb == NULL) {		// => page table => vpn is index into table
+209		if (vpn >= pageTableSize) {
+212		} else if (!pageTable[vpn].valid) {
+216		entry = &pageTable[vpn];
+231	    if (entry->readOnly && writing) {	// trying to write to a read-only page
+235	    pageFrame = entry->physicalPage;
+239	    if (pageFrame >= NumPhysPages) { 
+243	    entry->use = TRUE;		// set the use, dirty bits
+244	    if (writing)
+246	    *physAddr = pageFrame * PageSize + offset;
+247	    ASSERT((*physAddr >= 0) && ((*physAddr + size) <= MemorySize));
+248	    DEBUG(dbgAddr, "phys addr = " << *physAddr);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=1504, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:249
+249	    return NoException;
+250	}
+Machine::ReadMem (this=0x8066380, addr=1504, size=4, value=0x807b70c) at ../machine/translate.cc:95
+95	    if (exception != NoException) {
+99	    switch (size) {
+111		data = *(unsigned int *) &mainMemory[physicalAddress];
+112		*value = WordToHost(data);
+WordToHost (word=8) at ../machine/translate.cc:49
+49		 return word;
+51	}
+Machine::ReadMem (this=0x8066380, addr=1504, size=4, value=0x807b70c) at ../machine/translate.cc:113
+113		break;
+118	    DEBUG(dbgAddr, "\tvalue read = " << *value);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=1504, size=4, value=0x807b70c) at ../machine/translate.cc:119
+119	    return (TRUE);
+120	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:308
+308		nextLoadReg = instr->rt;
+309		nextLoadValue = value;
+310		break;
+694	    DelayedLoad(nextLoadReg, nextLoadValue);
+Machine::DelayedLoad (this=0x8066380, nextReg=2, nextValue=8) at ../machine/mipssim.cc:714
+714	    registers[registers[LoadReg]] = registers[LoadValueReg];
+715	    registers[LoadReg] = nextReg;
+716	    registers[LoadValueReg] = nextValue;
+717	    registers[0] = 0; 	// and always make sure R0 stays zero.
+718	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:697
+697	    registers[PrevPCReg] = registers[PCReg];	// for debugging, in case we
+699	    registers[PCReg] = registers[NextPCReg];
+700	    registers[NextPCReg] = pcAfter;
+701	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:68
+68			kernel->interrupt->OneTick();
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:150
+150	    MachineStatus oldStatus = status;
+151	    Statistics *stats = kernel->stats;
+154	    if (status == SystemMode) {
+158		stats->totalTicks += UserTick;
+159		stats->userTicks += UserTick;
+161	    DEBUG(dbgInt, "== Tick " << stats->totalTicks << " ==");
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:164
+164	    ChangeLevel(IntOn, IntOff);	// first, turn off interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:167
+167	    CheckIfDue(FALSE);		// check for pending interrupts
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:321
+321	    Statistics *stats = kernel->stats;
+323	    ASSERT(level == IntOff);		// interrupts need to be disabled,
+325	    if (debug->IsEnabled(dbgInt)) {
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:328
+328	    if (pending->IsEmpty()) {   	// no pending interrupts
+List<PendingInterrupt*>::IsEmpty (this=0x80662f0) at ../lib/list.h:62
+62	    bool IsEmpty() { return (numInList == 0); };
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:331
+331	    next = pending->Front();
+List<PendingInterrupt*>::Front (this=0x80662f0) at ../lib/list.h:52
+52	    T Front() { return first->item; }
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:333
+333	    if (next->when > stats->totalTicks) {
+334	        if (!advanceClock) {		// not time yet
+335	            return FALSE;
+360	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:168
+168	    ChangeLevel(IntOff, IntOn);	// re-enable interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:169
+169	    if (yieldOnReturn) {	// if the timer device handler asked 
+176	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:69
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+#0  Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#1  0x08058cec in AddrSpace::Execute (this=0x80731c0, fileName=0xffffd7c2 "../test/consoleIO_test1") at ../userprog/addrspace.cc:210
+#2  0x08054e1a in ForkExecute (t=0x8072fd8) at ../threads/kernel.cc:267
+#3  0x0805c668 in _ThreadRoot ()
+#4  0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#5  0x00000000 in ?? ()
+#0  Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#1  0x08058cec in AddrSpace::Execute (this=0x80731c0, fileName=0xffffd7c2 "../test/consoleIO_test1") at ../userprog/addrspace.cc:210
+#2  0x08054e1a in ForkExecute (t=0x8072fd8) at ../threads/kernel.cc:267
+#3  0x0805c668 in _ThreadRoot ()
+#4  0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#5  0x00000000 in ?? ()
+#0  Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#1  0x08058cec in AddrSpace::Execute (this=0x80731c0, fileName=0xffffd7c2 "../test/consoleIO_test1") at ../userprog/addrspace.cc:210
+#2  0x08054e1a in ForkExecute (t=0x8072fd8) at ../threads/kernel.cc:267
+#3  0x0805c668 in _ThreadRoot ()
+#4  0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#5  0x00000000 in ?? ()
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:128
+128	    int nextLoadReg = 0; 	
+129	    int nextLoadValue = 0; 	// record delayed load operation, to apply
+133	    if (!ReadMem(registers[PCReg], 4, &raw))
+Machine::ReadMem (this=0x8066380, addr=424, size=4, value=0x807b710) at ../machine/translate.cc:92
+92	    DEBUG(dbgAddr, "Reading VA " << addr << ", size " << size);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=424, size=4, value=0x807b710) at ../machine/translate.cc:94
+94	    exception = Translate(addr, &physicalAddress, size, FALSE);
+Machine::Translate (this=0x8066380, virtAddr=424, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:192
+192	    DEBUG(dbgAddr, "\tTranslate " << virtAddr << (writing ? " , write" : " , read"));
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=424, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:195
+195	    if (((size == 4) && (virtAddr & 0x3)) || ((size == 2) && (virtAddr & 0x1))){
+200	    ASSERT(tlb == NULL || pageTable == NULL);	
+201	    ASSERT(tlb != NULL || pageTable != NULL);	
+205	    vpn = (unsigned) virtAddr / PageSize;
+206	    offset = (unsigned) virtAddr % PageSize;
+208	    if (tlb == NULL) {		// => page table => vpn is index into table
+209		if (vpn >= pageTableSize) {
+212		} else if (!pageTable[vpn].valid) {
+216		entry = &pageTable[vpn];
+231	    if (entry->readOnly && writing) {	// trying to write to a read-only page
+235	    pageFrame = entry->physicalPage;
+239	    if (pageFrame >= NumPhysPages) { 
+243	    entry->use = TRUE;		// set the use, dirty bits
+244	    if (writing)
+246	    *physAddr = pageFrame * PageSize + offset;
+247	    ASSERT((*physAddr >= 0) && ((*physAddr + size) <= MemorySize));
+248	    DEBUG(dbgAddr, "phys addr = " << *physAddr);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=424, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:249
+249	    return NoException;
+250	}
+Machine::ReadMem (this=0x8066380, addr=424, size=4, value=0x807b710) at ../machine/translate.cc:95
+95	    if (exception != NoException) {
+99	    switch (size) {
+111		data = *(unsigned int *) &mainMemory[physicalAddress];
+112		*value = WordToHost(data);
+WordToHost (word=0) at ../machine/translate.cc:49
+49		 return word;
+51	}
+Machine::ReadMem (this=0x8066380, addr=424, size=4, value=0x807b710) at ../machine/translate.cc:113
+113		break;
+118	    DEBUG(dbgAddr, "\tvalue read = " << *value);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=424, size=4, value=0x807b710) at ../machine/translate.cc:119
+119	    return (TRUE);
+120	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:135
+135	    instr->value = raw;
+136	    instr->Decode();
+Instruction::Decode (this=0x807b7e0) at ../machine/mipssim.cc:730
+730	    rs = (value >> 21) & 0x1f;
+731	    rt = (value >> 16) & 0x1f;
+732	    rd = (value >> 11) & 0x1f;
+733	    opPtr = &opTable[(value >> 26) & 0x3f];
+734	    opCode = opPtr->opCode;
+735	    if (opPtr->format == IFMT) {
+740	    } else if (opPtr->format == RFMT) {
+741		extra = (value >> 6) & 0x1f;
+745	    if (opCode == SPECIAL) {
+746		opCode = specialTable[value & 0x3f];
+762	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:138
+138	    if (debug->IsEnabled('m')) {
+Debug::IsEnabled (this=0x8066008, flag=109 'm') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:150
+150	    int pcAfter = registers[NextPCReg] + 4;
+155	    switch (instr->opCode) {
+471		registers[instr->rd] = registers[instr->rt] << instr->extra;
+472		break;
+694	    DelayedLoad(nextLoadReg, nextLoadValue);
+Machine::DelayedLoad (this=0x8066380, nextReg=0, nextValue=0) at ../machine/mipssim.cc:714
+714	    registers[registers[LoadReg]] = registers[LoadValueReg];
+715	    registers[LoadReg] = nextReg;
+716	    registers[LoadValueReg] = nextValue;
+717	    registers[0] = 0; 	// and always make sure R0 stays zero.
+718	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:697
+697	    registers[PrevPCReg] = registers[PCReg];	// for debugging, in case we
+699	    registers[PCReg] = registers[NextPCReg];
+700	    registers[NextPCReg] = pcAfter;
+701	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:68
+68			kernel->interrupt->OneTick();
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:150
+150	    MachineStatus oldStatus = status;
+151	    Statistics *stats = kernel->stats;
+154	    if (status == SystemMode) {
+158		stats->totalTicks += UserTick;
+159		stats->userTicks += UserTick;
+161	    DEBUG(dbgInt, "== Tick " << stats->totalTicks << " ==");
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:164
+164	    ChangeLevel(IntOn, IntOff);	// first, turn off interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:167
+167	    CheckIfDue(FALSE);		// check for pending interrupts
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:321
+321	    Statistics *stats = kernel->stats;
+323	    ASSERT(level == IntOff);		// interrupts need to be disabled,
+325	    if (debug->IsEnabled(dbgInt)) {
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:328
+328	    if (pending->IsEmpty()) {   	// no pending interrupts
+List<PendingInterrupt*>::IsEmpty (this=0x80662f0) at ../lib/list.h:62
+62	    bool IsEmpty() { return (numInList == 0); };
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:331
+331	    next = pending->Front();
+List<PendingInterrupt*>::Front (this=0x80662f0) at ../lib/list.h:52
+52	    T Front() { return first->item; }
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:333
+333	    if (next->when > stats->totalTicks) {
+334	        if (!advanceClock) {		// not time yet
+335	            return FALSE;
+360	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:168
+168	    ChangeLevel(IntOff, IntOn);	// re-enable interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:169
+169	    if (yieldOnReturn) {	// if the timer device handler asked 
+176	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:69
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:128
+128	    int nextLoadReg = 0; 	
+129	    int nextLoadValue = 0; 	// record delayed load operation, to apply
+133	    if (!ReadMem(registers[PCReg], 4, &raw))
+Machine::ReadMem (this=0x8066380, addr=428, size=4, value=0x807b710) at ../machine/translate.cc:92
+92	    DEBUG(dbgAddr, "Reading VA " << addr << ", size " << size);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=428, size=4, value=0x807b710) at ../machine/translate.cc:94
+94	    exception = Translate(addr, &physicalAddress, size, FALSE);
+Machine::Translate (this=0x8066380, virtAddr=428, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:192
+192	    DEBUG(dbgAddr, "\tTranslate " << virtAddr << (writing ? " , write" : " , read"));
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=428, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:195
+195	    if (((size == 4) && (virtAddr & 0x3)) || ((size == 2) && (virtAddr & 0x1))){
+200	    ASSERT(tlb == NULL || pageTable == NULL);	
+201	    ASSERT(tlb != NULL || pageTable != NULL);	
+205	    vpn = (unsigned) virtAddr / PageSize;
+206	    offset = (unsigned) virtAddr % PageSize;
+208	    if (tlb == NULL) {		// => page table => vpn is index into table
+209		if (vpn >= pageTableSize) {
+212		} else if (!pageTable[vpn].valid) {
+216		entry = &pageTable[vpn];
+231	    if (entry->readOnly && writing) {	// trying to write to a read-only page
+235	    pageFrame = entry->physicalPage;
+239	    if (pageFrame >= NumPhysPages) { 
+243	    entry->use = TRUE;		// set the use, dirty bits
+244	    if (writing)
+246	    *physAddr = pageFrame * PageSize + offset;
+247	    ASSERT((*physAddr >= 0) && ((*physAddr + size) <= MemorySize));
+248	    DEBUG(dbgAddr, "phys addr = " << *physAddr);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=428, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:249
+249	    return NoException;
+250	}
+Machine::ReadMem (this=0x8066380, addr=428, size=4, value=0x807b710) at ../machine/translate.cc:95
+95	    if (exception != NoException) {
+99	    switch (size) {
+111		data = *(unsigned int *) &mainMemory[physicalAddress];
+112		*value = WordToHost(data);
+WordToHost (word=608436223) at ../machine/translate.cc:49
+49		 return word;
+51	}
+Machine::ReadMem (this=0x8066380, addr=428, size=4, value=0x807b710) at ../machine/translate.cc:113
+113		break;
+118	    DEBUG(dbgAddr, "\tvalue read = " << *value);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=428, size=4, value=0x807b710) at ../machine/translate.cc:119
+119	    return (TRUE);
+120	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:135
+135	    instr->value = raw;
+136	    instr->Decode();
+Instruction::Decode (this=0x807b7e0) at ../machine/mipssim.cc:730
+730	    rs = (value >> 21) & 0x1f;
+731	    rt = (value >> 16) & 0x1f;
+732	    rd = (value >> 11) & 0x1f;
+733	    opPtr = &opTable[(value >> 26) & 0x3f];
+734	    opCode = opPtr->opCode;
+735	    if (opPtr->format == IFMT) {
+736		extra = value & 0xffff;
+737		if (extra & 0x8000) {
+738	    	   extra |= 0xffff0000;
+745	    if (opCode == SPECIAL) {
+747	    } else if (opCode == BCOND) {
+762	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:138
+138	    if (debug->IsEnabled('m')) {
+Debug::IsEnabled (this=0x8066008, flag=109 'm') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:150
+150	    int pcAfter = registers[NextPCReg] + 4;
+155	    switch (instr->opCode) {
+178		registers[instr->rt] = registers[instr->rs] + instr->extra;
+179		break;
+694	    DelayedLoad(nextLoadReg, nextLoadValue);
+Machine::DelayedLoad (this=0x8066380, nextReg=0, nextValue=0) at ../machine/mipssim.cc:714
+714	    registers[registers[LoadReg]] = registers[LoadValueReg];
+715	    registers[LoadReg] = nextReg;
+716	    registers[LoadValueReg] = nextValue;
+717	    registers[0] = 0; 	// and always make sure R0 stays zero.
+718	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:697
+697	    registers[PrevPCReg] = registers[PCReg];	// for debugging, in case we
+699	    registers[PCReg] = registers[NextPCReg];
+700	    registers[NextPCReg] = pcAfter;
+701	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:68
+68			kernel->interrupt->OneTick();
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:150
+150	    MachineStatus oldStatus = status;
+151	    Statistics *stats = kernel->stats;
+154	    if (status == SystemMode) {
+158		stats->totalTicks += UserTick;
+159		stats->userTicks += UserTick;
+161	    DEBUG(dbgInt, "== Tick " << stats->totalTicks << " ==");
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:164
+164	    ChangeLevel(IntOn, IntOff);	// first, turn off interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:167
+167	    CheckIfDue(FALSE);		// check for pending interrupts
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:321
+321	    Statistics *stats = kernel->stats;
+323	    ASSERT(level == IntOff);		// interrupts need to be disabled,
+325	    if (debug->IsEnabled(dbgInt)) {
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:328
+328	    if (pending->IsEmpty()) {   	// no pending interrupts
+List<PendingInterrupt*>::IsEmpty (this=0x80662f0) at ../lib/list.h:62
+62	    bool IsEmpty() { return (numInList == 0); };
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:331
+331	    next = pending->Front();
+List<PendingInterrupt*>::Front (this=0x80662f0) at ../lib/list.h:52
+52	    T Front() { return first->item; }
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:333
+333	    if (next->when > stats->totalTicks) {
+334	        if (!advanceClock) {		// not time yet
+335	            return FALSE;
+360	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:168
+168	    ChangeLevel(IntOff, IntOn);	// re-enable interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:169
+169	    if (yieldOnReturn) {	// if the timer device handler asked 
+176	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:69
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:128
+128	    int nextLoadReg = 0; 	
+129	    int nextLoadValue = 0; 	// record delayed load operation, to apply
+133	    if (!ReadMem(registers[PCReg], 4, &raw))
+Machine::ReadMem (this=0x8066380, addr=432, size=4, value=0x807b710) at ../machine/translate.cc:92
+92	    DEBUG(dbgAddr, "Reading VA " << addr << ", size " << size);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=432, size=4, value=0x807b710) at ../machine/translate.cc:94
+94	    exception = Translate(addr, &physicalAddress, size, FALSE);
+Machine::Translate (this=0x8066380, virtAddr=432, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:192
+192	    DEBUG(dbgAddr, "\tTranslate " << virtAddr << (writing ? " , write" : " , read"));
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=432, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:195
+195	    if (((size == 4) && (virtAddr & 0x3)) || ((size == 2) && (virtAddr & 0x1))){
+200	    ASSERT(tlb == NULL || pageTable == NULL);	
+201	    ASSERT(tlb != NULL || pageTable != NULL);	
+205	    vpn = (unsigned) virtAddr / PageSize;
+206	    offset = (unsigned) virtAddr % PageSize;
+208	    if (tlb == NULL) {		// => page table => vpn is index into table
+209		if (vpn >= pageTableSize) {
+212		} else if (!pageTable[vpn].valid) {
+216		entry = &pageTable[vpn];
+231	    if (entry->readOnly && writing) {	// trying to write to a read-only page
+235	    pageFrame = entry->physicalPage;
+239	    if (pageFrame >= NumPhysPages) { 
+243	    entry->use = TRUE;		// set the use, dirty bits
+244	    if (writing)
+246	    *physAddr = pageFrame * PageSize + offset;
+247	    ASSERT((*physAddr >= 0) && ((*physAddr + size) <= MemorySize));
+248	    DEBUG(dbgAddr, "phys addr = " << *physAddr);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=432, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:249
+249	    return NoException;
+250	}
+Machine::ReadMem (this=0x8066380, addr=432, size=4, value=0x807b710) at ../machine/translate.cc:95
+95	    if (exception != NoException) {
+99	    switch (size) {
+111		data = *(unsigned int *) &mainMemory[physicalAddress];
+112		*value = WordToHost(data);
+WordToHost (word=134217823) at ../machine/translate.cc:49
+49		 return word;
+51	}
+Machine::ReadMem (this=0x8066380, addr=432, size=4, value=0x807b710) at ../machine/translate.cc:113
+113		break;
+118	    DEBUG(dbgAddr, "\tvalue read = " << *value);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=432, size=4, value=0x807b710) at ../machine/translate.cc:119
+119	    return (TRUE);
+120	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:135
+135	    instr->value = raw;
+136	    instr->Decode();
+Instruction::Decode (this=0x807b7e0) at ../machine/mipssim.cc:730
+730	    rs = (value >> 21) & 0x1f;
+731	    rt = (value >> 16) & 0x1f;
+732	    rd = (value >> 11) & 0x1f;
+733	    opPtr = &opTable[(value >> 26) & 0x3f];
+734	    opCode = opPtr->opCode;
+735	    if (opPtr->format == IFMT) {
+740	    } else if (opPtr->format == RFMT) {
+743		extra = value & 0x3ffffff;
+745	    if (opCode == SPECIAL) {
+747	    } else if (opCode == BCOND) {
+762	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:138
+138	    if (debug->IsEnabled('m')) {
+Debug::IsEnabled (this=0x8066008, flag=109 'm') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:150
+150	    int pcAfter = registers[NextPCReg] + 4;
+155	    switch (instr->opCode) {
+254		pcAfter = (pcAfter & 0xf0000000) | IndexToAddr(instr->extra);
+255		break;
+694	    DelayedLoad(nextLoadReg, nextLoadValue);
+Machine::DelayedLoad (this=0x8066380, nextReg=0, nextValue=0) at ../machine/mipssim.cc:714
+714	    registers[registers[LoadReg]] = registers[LoadValueReg];
+715	    registers[LoadReg] = nextReg;
+716	    registers[LoadValueReg] = nextValue;
+717	    registers[0] = 0; 	// and always make sure R0 stays zero.
+718	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:697
+697	    registers[PrevPCReg] = registers[PCReg];	// for debugging, in case we
+699	    registers[PCReg] = registers[NextPCReg];
+700	    registers[NextPCReg] = pcAfter;
+701	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:68
+68			kernel->interrupt->OneTick();
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:150
+150	    MachineStatus oldStatus = status;
+151	    Statistics *stats = kernel->stats;
+154	    if (status == SystemMode) {
+158		stats->totalTicks += UserTick;
+159		stats->userTicks += UserTick;
+161	    DEBUG(dbgInt, "== Tick " << stats->totalTicks << " ==");
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:164
+164	    ChangeLevel(IntOn, IntOff);	// first, turn off interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOn, now=IntOff) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:167
+167	    CheckIfDue(FALSE);		// check for pending interrupts
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:321
+321	    Statistics *stats = kernel->stats;
+323	    ASSERT(level == IntOff);		// interrupts need to be disabled,
+325	    if (debug->IsEnabled(dbgInt)) {
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:328
+328	    if (pending->IsEmpty()) {   	// no pending interrupts
+List<PendingInterrupt*>::IsEmpty (this=0x80662f0) at ../lib/list.h:62
+62	    bool IsEmpty() { return (numInList == 0); };
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:331
+331	    next = pending->Front();
+List<PendingInterrupt*>::Front (this=0x80662f0) at ../lib/list.h:52
+52	    T Front() { return first->item; }
+Interrupt::CheckIfDue (this=0x80662d8, advanceClock=false) at ../machine/interrupt.cc:333
+333	    if (next->when > stats->totalTicks) {
+334	        if (!advanceClock) {		// not time yet
+335	            return FALSE;
+360	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:168
+168	    ChangeLevel(IntOff, IntOn);	// re-enable interrupts
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:108
+108	    level = now;
+109	    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+Debug::IsEnabled (this=0x8066008, flag=105 'i') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Interrupt::ChangeLevel (this=0x80662d8, old=IntOff, now=IntOn) at ../machine/interrupt.cc:110
+110	}
+Interrupt::OneTick (this=0x80662d8) at ../machine/interrupt.cc:169
+169	    if (yieldOnReturn) {	// if the timer device handler asked 
+176	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:69
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:128
+128	    int nextLoadReg = 0; 	
+129	    int nextLoadValue = 0; 	// record delayed load operation, to apply
+133	    if (!ReadMem(registers[PCReg], 4, &raw))
+Machine::ReadMem (this=0x8066380, addr=436, size=4, value=0x807b710) at ../machine/translate.cc:92
+92	    DEBUG(dbgAddr, "Reading VA " << addr << ", size " << size);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=436, size=4, value=0x807b710) at ../machine/translate.cc:94
+94	    exception = Translate(addr, &physicalAddress, size, FALSE);
+Machine::Translate (this=0x8066380, virtAddr=436, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:192
+192	    DEBUG(dbgAddr, "\tTranslate " << virtAddr << (writing ? " , write" : " , read"));
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=436, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:195
+195	    if (((size == 4) && (virtAddr & 0x3)) || ((size == 2) && (virtAddr & 0x1))){
+200	    ASSERT(tlb == NULL || pageTable == NULL);	
+201	    ASSERT(tlb != NULL || pageTable != NULL);	
+205	    vpn = (unsigned) virtAddr / PageSize;
+206	    offset = (unsigned) virtAddr % PageSize;
+208	    if (tlb == NULL) {		// => page table => vpn is index into table
+209		if (vpn >= pageTableSize) {
+212		} else if (!pageTable[vpn].valid) {
+216		entry = &pageTable[vpn];
+231	    if (entry->readOnly && writing) {	// trying to write to a read-only page
+235	    pageFrame = entry->physicalPage;
+239	    if (pageFrame >= NumPhysPages) { 
+243	    entry->use = TRUE;		// set the use, dirty bits
+244	    if (writing)
+246	    *physAddr = pageFrame * PageSize + offset;
+247	    ASSERT((*physAddr >= 0) && ((*physAddr + size) <= MemorySize));
+248	    DEBUG(dbgAddr, "phys addr = " << *physAddr);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::Translate (this=0x8066380, virtAddr=436, physAddr=0x807b664, size=4, writing=false) at ../machine/translate.cc:249
+249	    return NoException;
+250	}
+Machine::ReadMem (this=0x8066380, addr=436, size=4, value=0x807b710) at ../machine/translate.cc:95
+95	    if (exception != NoException) {
+99	    switch (size) {
+111		data = *(unsigned int *) &mainMemory[physicalAddress];
+112		*value = WordToHost(data);
+WordToHost (word=2948792336) at ../machine/translate.cc:49
+49		 return word;
+51	}
+Machine::ReadMem (this=0x8066380, addr=436, size=4, value=0x807b710) at ../machine/translate.cc:113
+113		break;
+118	    DEBUG(dbgAddr, "\tvalue read = " << *value);
+Debug::IsEnabled (this=0x8066008, flag=97 'a') at ../lib/debug.cc:39
+39	    if (enableFlags != NULL) {
+41			|| (strchr(enableFlags, '+') != 0));
+45	}
+Machine::ReadMem (this=0x8066380, addr=436, size=4, value=0x807b710) at ../machine/translate.cc:119
+119	    return (TRUE);
+120	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:135
+135	    instr->value = raw;
+136	    instr->Decode();
+Instruction::Decode (this=0x807b7e0) at ../machine/mipssim.cc:730
+730	    rs = (value >> 21) & 0x1f;
+731	    rt = (value >> 16) & 0x1f;
+732	    rd = (value >> 11) & 0x1f;
+733	    opPtr = &opTable[(value >> 26) & 0x3f];
+#0  Instruction::Decode (this=0x807b7e0) at ../machine/mipssim.cc:733
+#1  0x0804fe2e in Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:136
+#2  0x0804fd36 in Machine::Run (this=0x8066380) at ../machine/mipssim.cc:67
+#3  0x08058cec in AddrSpace::Execute (this=0x80731c0, fileName=0xffffd7c2 "../test/consoleIO_test1") at ../userprog/addrspace.cc:210
+#4  0x08054e1a in ForkExecute (t=0x8072fd8) at ../threads/kernel.cc:267
+#5  0x0805c668 in _ThreadRoot ()
+#6  0x0805c660 in List<Mail*>::SanityCheck (this=0x0) at ../lib/list.cc:289
+#7  0x00000000 in ?? ()
+734	    opCode = opPtr->opCode;
+735	    if (opPtr->format == IFMT) {
+736		extra = value & 0xffff;
+737		if (extra & 0x8000) {
+745	    if (opCode == SPECIAL) {
+747	    } else if (opCode == BCOND) {
+762	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:138
+138	    if (debug->IsEnabled('m')) {
+150	    int pcAfter = registers[NextPCReg] + 4;
+155	    switch (instr->opCode) {
+547		if (!WriteMem((unsigned) 
+548			(registers[instr->rs] + instr->extra), 4, registers[instr->rt]))
+547		if (!WriteMem((unsigned) 
+550		break;
+694	    DelayedLoad(nextLoadReg, nextLoadValue);
+697	    registers[PrevPCReg] = registers[PCReg];	// for debugging, in case we
+699	    registers[PCReg] = registers[NextPCReg];
+700	    registers[NextPCReg] = pcAfter;
+701	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:68
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+
+Breakpoint 1, Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+255	}
+Semaphore::P (this=0x806a560) at ../threads/synch.cc:84
+84	    while (value == 0) { 		// semaphore not available
+88	    value--; 			// semaphore available, consume its value
+91	    (void) interrupt->SetLevel(oldLevel);	
+92	}
+SynchConsoleOutput::PutInt (this=0x806a4f8, number=7) at ../userprog/synchconsole.cc:119
+119	    lock->Release();
+120	}
+Kernel::ConsolePrintInt (this=0x8066018, number=7) at ../threads/kernel.cc:201
+201	}
+Interrupt::PrintInt (this=0x80662d8, number=7) at ../machine/interrupt.cc:252
+252	}
+SysPrintInt (number=7) at ../userprog/ksyscall.h:40
+40	}
+ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:64
+64				kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));
+65				kernel->machine->WriteRegister(PCReg, kernel->machine->ReadRegister(PCReg) + 4);
+66				kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg)+4);
+67				return;		
+196	}
+Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:108
+108	    kernel->interrupt->setStatus(UserMode);
+109	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:672
+672		return; 
+701	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:68
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+
+Breakpoint 1, Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:254
+254	    kernel->scheduler->Run(nextThread, finishing); 
+Scheduler::Run (this=0x8066308, nextThread=0x8072fd8, finishing=false) at ../threads/scheduler.cc:106
+106	    Thread *oldThread = kernel->currentThread;
+108	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+110	    if (finishing) {	// mark that we need to delete current thread
+115	    if (oldThread->space != NULL) {	// if this thread is a user program,
+116	        oldThread->SaveUserState(); 	// save the user's CPU registers
+117		oldThread->space->SaveState();
+120	    oldThread->CheckOverflow();		    // check if the old thread
+123	    kernel->currentThread = nextThread;  // switch to the next thread
+124	    nextThread->setStatus(RUNNING);      // nextThread is now running
+126	    DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
+133	    SWITCH(oldThread, nextThread);
+138	    ASSERT(kernel->interrupt->getLevel() == IntOff);
+140	    DEBUG(dbgThread, "Now in thread: " << oldThread->getName());
+142	    CheckToBeDestroyed();		// check if thread we were running
+146	    if (oldThread->space != NULL) {	    // if there is an address space
+147	        oldThread->RestoreUserState();     // to restore, do it.
+148		oldThread->space->RestoreState();
+150	}
+Thread::Sleep (this=0x8072fd8, finishing=false) at ../threads/thread.cc:255
+255	}
+Semaphore::P (this=0x806a560) at ../threads/synch.cc:84
+84	    while (value == 0) { 		// semaphore not available
+88	    value--; 			// semaphore available, consume its value
+91	    (void) interrupt->SetLevel(oldLevel);	
+92	}
+SynchConsoleOutput::PutInt (this=0x806a4f8, number=6) at ../userprog/synchconsole.cc:119
+119	    lock->Release();
+120	}
+Kernel::ConsolePrintInt (this=0x8066018, number=6) at ../threads/kernel.cc:201
+201	}
+Interrupt::PrintInt (this=0x80662d8, number=6) at ../machine/interrupt.cc:252
+252	}
+SysPrintInt (number=6) at ../userprog/ksyscall.h:40
+40	}
+ExceptionHandler (which=SyscallException) at ../userprog/exception.cc:64
+64				kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));
+65				kernel->machine->WriteRegister(PCReg, kernel->machine->ReadRegister(PCReg) + 4);
+66				kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg)+4);
+67				return;		
+196	}
+Machine::RaiseException (this=0x8066380, which=SyscallException, badVAddr=0) at ../machine/machine.cc:108
+108	    kernel->interrupt->setStatus(UserMode);
+109	}
+Machine::OneInstruction (this=0x8066380, instr=0x807b7e0) at ../machine/mipssim.cc:672
+672		return; 
+701	}
+Machine::Run (this=0x8066380) at ../machine/mipssim.cc:68
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+66	    for (;;) {
+67	        OneInstruction(instr);
+68			kernel->interrupt->OneTick();
+69			if (singleStep && (runUntilTime <= kernel->stats->totalTicks))
+
+Program received signal SIGINT, Interrupt.
+0x0804ca0b in PollFile (fd=9) at ../lib/sysdep.cc:274
+274	    FD_ZERO(&wfd);
+Hangup detected on fd 0
+Error detected on fd 0
+error detected on stdin
+A debugging session is active.
+
+	Inferior 1 [process 16215] will be killed.
+
+Quit anyway? (y or n) EOF [assumed Y]
